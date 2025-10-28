@@ -1,11 +1,13 @@
 <!DOCTYPE html>
 <html lang="pt-br">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Agendamento - Sistema Multi-Planilhas</title>
     <link rel="stylesheet" href="styles.css">
 </head>
+
 <body>
     <div class="dashboard-container">
         <div class="header">
@@ -29,7 +31,8 @@
                 </div>
                 <div class="form-group">
                     <label for="powerAutomateUrlVerificarTecnico">URL do Power Automate (VERIFICAR TÉCNICO)</label>
-                    <input type="text" id="powerAutomateUrlVerificarTecnico" placeholder="Cole a URL para verificar técnico">
+                    <input type="text" id="powerAutomateUrlVerificarTecnico"
+                        placeholder="Cole a URL para verificar técnico">
                 </div>
             </div>
             <div class="form-row">
@@ -43,7 +46,7 @@
         <!-- Busca por Site Name/Chave -->
         <div class="search-section">
             <h3>🔍 Buscar por Site Name / Chave</h3>
-            
+
             <!-- Seleção de Projeto -->
             <div class="form-row">
                 <div class="form-group" style="flex: 1;">
@@ -52,7 +55,6 @@
                         <option value="">Selecione</option>
                         <option value="Atacadao">Atacadão</option>
                         <option value="Bradesco">Bradesco</option>
-                        <option value="Desinstalação CEF">Desinstalação CEF</option>
                     </select>
                 </div>
             </div>
@@ -61,7 +63,8 @@
             <div class="form-row" id="campoAtacadao" style="display: none;">
                 <div class="form-group" style="flex: 2;">
                     <label for="buscarSiteName">Site Name para Buscar *</label>
-                    <input type="text" id="buscarSiteName" placeholder="Digite o Site Name exato para buscar e atualizar">
+                    <input type="text" id="buscarSiteName"
+                        placeholder="Digite o Site Name exato para buscar e atualizar">
                 </div>
             </div>
 
@@ -145,7 +148,8 @@
                         </div>
                         <div class="form-group">
                             <label for="observacoes">Observações</label>
-                            <textarea id="observacoes" name="observacoes" placeholder="Observações do atendimento"></textarea>
+                            <textarea id="observacoes" name="observacoes"
+                                placeholder="Observações do atendimento"></textarea>
                         </div>
                     </div>
                 </div>
@@ -164,21 +168,54 @@
         </div>
 
         <!-- Painel de Debug -->
-        <div class="debug-section" style="display: none; margin-top: 20px; background: #f5f5f5; padding: 15px; border-radius: 8px;">
+        <div class="debug-section"
+            style="display: none; margin-top: 20px; background: #f5f5f5; padding: 15px; border-radius: 8px;">
             <h3>🐛 Painel de Debug</h3>
             <div class="form-row">
                 <div class="form-group">
                     <label>Última Requisição:</label>
-                    <pre id="debugOutput" style="background: #2d2d2d; color: #f8f8f2; padding: 15px; border-radius: 5px; height: 200px; overflow: auto; font-size: 12px; margin-top: 10px;"></pre>
+                    <pre id="debugOutput"
+                        style="background: #2d2d2d; color: #f8f8f2; padding: 15px; border-radius: 5px; height: 200px; overflow: auto; font-size: 12px; margin-top: 10px;"></pre>
                 </div>
             </div>
             <div class="form-actions">
-                <button class="btn-secondary" onclick="document.getElementById('debugOutput').textContent = ''">Limpar Debug</button>
-                <button class="btn-secondary" onclick="document.querySelector('.debug-section').style.display = 'none'">Fechar</button>
+                <button class="btn-secondary" onclick="document.getElementById('debugOutput').textContent = ''">Limpar
+                    Debug</button>
+                <button class="btn-secondary"
+                    onclick="document.querySelector('.debug-section').style.display = 'none'">Fechar</button>
             </div>
         </div>
+    </div>
+    <!-- Na seção de configuração, atualize os labels -->
+    <div class="config-section">
+        <h3>⚙️ Configuração do Sistema</h3>
+        <div class="form-row">
+            <div class="form-group">
+                <label for="powerAutomateUrl">URL do Power Automate (UPDATE) *</label>
+                <input type="text" id="powerAutomateUrl" placeholder="Cole a URL do Flow de ATUALIZAÇÃO">
+                <div class="optional-info">Esta URL é obrigatória para o funcionamento do sistema</div>
+            </div>
+            <div class="form-group">
+                <label for="powerAutomateUrlVerificar">URL do Power Automate (VERIFICAR)</label>
+                <input type="text" id="powerAutomateUrlVerificar" placeholder="Cole a URL do Flow de VERIFICAÇÃO">
+                <div class="optional-info">Opcional: permite verificar dados existentes na planilha</div>
+            </div>
+            <div class="form-group">
+                <label for="powerAutomateUrlVerificarTecnico">URL do Power Automate (VERIFICAR TÉCNICO)</label>
+                <input type="text" id="powerAutomateUrlVerificarTecnico"
+                    placeholder="Cole a URL para verificar técnico">
+                <div class="optional-info">Opcional: permite verificar conflitos de agendamento</div>
+            </div>
+        </div>
+        <div class="form-row">
+            <button class="btn-primary" onclick="salvarConfiguracao()">Salvar Configuração</button>
+            <button class="btn-debug" onclick="testarConexao()">🔧 Testar Conexão</button>
+            <button class="btn-debug" onclick="debugConfiguracao()">🐛 Debug Config</button>
+        </div>
+        <div id="configMessage" class="message"></div>
     </div>
 
     <script src="script.js"></script>
 </body>
+
 </html>

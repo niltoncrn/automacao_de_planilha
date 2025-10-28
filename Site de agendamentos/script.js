@@ -44,18 +44,16 @@ function debugConfiguracao() {
 
 function testarConexao() {
     const url = document.getElementById('powerAutomateUrl').value.trim();
-    const urlVerificar = document.getElementById('powerAutomateUrlVerificar').value.trim();
-    const urlVerificarTecnico = document.getElementById('powerAutomateUrlVerificarTecnico').value.trim();
     
-    if (!url || !urlVerificar || !urlVerificarTecnico) {
-        showMessage('❌ Configure todas as URLs primeiro', 'error', 'configMessage');
+    if (!url) {
+        showMessage('❌ Configure a URL principal primeiro', 'error', 'configMessage');
         return;
     }
 
     console.log('🔍 === TESTE DE CONEXÃO ===');
     console.log('🔗 URL Atualização:', url);
-    console.log('🔗 URL Verificação:', urlVerificar);
-    console.log('🔗 URL Verificação Técnico:', urlVerificarTecnico);
+    console.log('🔗 URL Verificação:', document.getElementById('powerAutomateUrlVerificar').value);
+    console.log('🔗 URL Verificação Técnico:', document.getElementById('powerAutomateUrlVerificarTecnico').value);
     
     showMessage('✅ URLs configuradas - verifique o console', 'success', 'configMessage');
 }
@@ -120,7 +118,7 @@ function atualizarDebugOutput(dados) {
 
 async function verificarConflitoTecnico(tecnico, data, horario, chaveAtual) {
     if (!config.powerAutomateUrlVerificarTecnico) {
-        console.warn('⚠️ URL de verificação de técnico não configurada');
+        console.log('ℹ️ URL de verificação de técnico não configurada - pulando verificação');
         return null;
     }
 
@@ -185,8 +183,9 @@ async function buscarDados() {
         }
     }
 
-    if (!config.powerAutomateUrlVerificar) {
-        showMessage('❌ Configure a URL de verificação primeiro', 'error');
+    // Verificar se a URL principal está configurada
+    if (!config.powerAutomateUrl) {
+        showMessage('❌ Configure a URL principal primeiro', 'error');
         return;
     }
 
@@ -194,92 +193,122 @@ async function buscarDados() {
     const btnBuscarText = document.getElementById('btnBuscarText');
     const btnBuscarLoader = document.getElementById('btnBuscarLoader');
     
-    btnBuscarText.textContent = 'Verificando...';
+    btnBuscarText.textContent = 'Carregando...';
     btnBuscarLoader.style.display = 'inline-block';
     btnBuscar.disabled = true;
 
     try {
-        const dadosVerificacao = {
-            projeto: projeto,
-            chave: chaveBusca,
-            action: 'verificar'
-        };
+        // Se a URL de verificação estiver configurada, tenta buscar dados existentes
+        if (config.powerAutomateUrlVerificar) {
+            const dadosVerificacao = {
+                projeto: projeto,
+                chave: chaveBusca,
+                action: 'verificar'
+            };
 
-        console.log('🔍 Verificando existência na planilha:', dadosVerificacao);
+            console.log('🔍 Verificando existência na planilha:', dadosVerificacao);
 
-        const response = await fetch(config.powerAutomateUrlVerificar, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(dadosVerificacao)
-        });
+            const response = await fetch(config.powerAutomateUrlVerificar, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(dadosVerificacao)
+            });
 
-        if (!response.ok) {
-            throw new Error(`Erro na verificação: ${response.status}`);
+            if (response.ok) {
+                const resultado = await response.json();
+                console.log('📥 Resultado da verificação:', resultado);
+
+                if (resultado.existe) {
+                    // Dados encontrados na planilha
+                    projetoAtual = projeto;
+                    siteNameAtual = chaveBusca;
+                    dadosExistentes = resultado.dados;
+
+                    document.getElementById('projeto').value = projeto;
+                    document.getElementById('projeto').disabled = false;
+                    document.getElementById('submitBtn').disabled = false;
+                    
+                    const displayText = projeto === 'Atacadao' ? 
+                        `<strong>Site Name:</strong> ${chaveBusca}` : 
+                        `<strong>Chave Bradesco:</strong> ${chaveBusca}`;
+                    
+                    document.getElementById('siteNameDisplay').innerHTML = displayText;
+                    document.getElementById('chaveLabel').textContent = projeto === 'Atacadao' ? 
+                        'Site Name (Chave):' : 'Chave Bradesco:';
+
+                    preencherFormularioComDadosExistentes(resultado.dados);
+
+                    // Verificar conflito de técnico se a URL estiver configurada
+                    const tecnico = resultado.dados.Técnico || resultado.dados.tecnico;
+                    const data = resultado.dados.Data || resultado.dados.data;
+                    const horario = resultado.dados.Horario || resultado.dados.horario;
+                    
+                    if (tecnico && data && horario && config.powerAutomateUrlVerificarTecnico) {
+                        const conflitoTecnico = await verificarConflitoTecnico(tecnico, data, horario, chaveBusca);
+                        if (conflitoTecnico && conflitoTecnico.conflito) {
+                            showMessage(`⚠️ ${conflitoTecnico.mensagem}`, 'warning');
+                        } else {
+                            showMessage('✅ Dados encontrados na planilha! Formulário preenchido.', 'success');
+                        }
+                    } else {
+                        showMessage('✅ Dados encontrados na planilha! Formulário preenchido.', 'success');
+                    }
+                    
+                    return;
+                }
+            }
         }
 
-        const resultado = await response.json();
-        console.log('📥 Resultado da verificação:', resultado);
+        // Se não há URL de verificação ou não encontrou dados, carrega formulário vazio
+        projetoAtual = projeto;
+        siteNameAtual = chaveBusca;
+        dadosExistentes = null;
 
-        if (resultado.existe) {
-            projetoAtual = projeto;
-            siteNameAtual = chaveBusca;
-            dadosExistentes = resultado.dados;
+        document.getElementById('projeto').value = projeto;
+        document.getElementById('projeto').disabled = false;
+        document.getElementById('submitBtn').disabled = false;
+        
+        const displayText = projeto === 'Atacadao' ? 
+            `<strong>Site Name:</strong> ${chaveBusca}` : 
+            `<strong>Chave Bradesco:</strong> ${chaveBusca}`;
+        
+        document.getElementById('siteNameDisplay').innerHTML = displayText;
+        document.getElementById('chaveLabel').textContent = projeto === 'Atacadao' ? 
+            'Site Name (Chave):' : 'Chave Bradesco:';
 
-            document.getElementById('projeto').value = projeto;
-            document.getElementById('projeto').disabled = false;
-            document.getElementById('submitBtn').disabled = false;
-            
-            const displayText = projeto === 'Atacadao' ? 
-                `<strong>Site Name:</strong> ${chaveBusca}` : 
-                `<strong>Chave Bradesco:</strong> ${chaveBusca}`;
-            
-            document.getElementById('siteNameDisplay').innerHTML = displayText;
-            document.getElementById('chaveLabel').textContent = projeto === 'Atacadao' ? 
-                'Site Name (Chave):' : 'Chave Bradesco:';
-
-            preencherFormularioComDadosExistentes(resultado.dados);
-
-            const tecnico = resultado.dados.Técnico || resultado.dados.tecnico;
-            const data = resultado.dados.Data || resultado.dados.data;
-            const horario = resultado.dados.Horario || resultado.dados.horario;
-            
-            if (tecnico && data && horario) {
-                const conflitoTecnico = await verificarConflitoTecnico(tecnico, data, horario, chaveBusca);
-                if (conflitoTecnico && conflitoTecnico.conflito) {
-                    showMessage(`⚠️ ${conflitoTecnico.mensagem}`, 'warning');
-                } else {
-                    showMessage('✅ Dados encontrados na planilha! Formulário preenchido.', 'success');
-                }
-            } else {
-                showMessage('✅ Dados encontrados na planilha! Formulário preenchido.', 'success');
-            }
-            
+        limparCamposFormulario();
+        
+        if (!config.powerAutomateUrlVerificar) {
+            showMessage('ℹ️ Modo sem verificação: formulário carregado para novo agendamento.', 'warning');
         } else {
-            projetoAtual = projeto;
-            siteNameAtual = chaveBusca;
-            dadosExistentes = null;
-
-            document.getElementById('projeto').value = projeto;
-            document.getElementById('projeto').disabled = false;
-            document.getElementById('submitBtn').disabled = false;
-            
-            const displayText = projeto === 'Atacadao' ? 
-                `<strong>Site Name:</strong> ${chaveBusca}` : 
-                `<strong>Chave Bradesco:</strong> ${chaveBusca}`;
-            
-            document.getElementById('siteNameDisplay').innerHTML = displayText;
-            document.getElementById('chaveLabel').textContent = projeto === 'Atacadao' ? 
-                'Site Name (Chave):' : 'Chave Bradesco:';
-
-            limparCamposFormulario();
             showMessage('⚠️ Chave não encontrada. Preencha os dados para novo agendamento.', 'warning');
         }
 
     } catch (error) {
-        console.error('❌ Erro na verificação:', error);
-        showMessage(`❌ Erro ao verificar: ${error.message}`, 'error');
+        console.error('❌ Erro na busca:', error);
+        
+        // Em caso de erro na verificação, ainda carrega o formulário
+        projetoAtual = projeto;
+        siteNameAtual = chaveBusca;
+        dadosExistentes = null;
+
+        document.getElementById('projeto').value = projeto;
+        document.getElementById('projeto').disabled = false;
+        document.getElementById('submitBtn').disabled = false;
+        
+        const displayText = projeto === 'Atacadao' ? 
+            `<strong>Site Name:</strong> ${chaveBusca}` : 
+            `<strong>Chave Bradesco:</strong> ${chaveBusca}`;
+        
+        document.getElementById('siteNameDisplay').innerHTML = displayText;
+        document.getElementById('chaveLabel').textContent = projeto === 'Atacadao' ? 
+            'Site Name (Chave):' : 'Chave Bradesco:';
+
+        limparCamposFormulario();
+        showMessage('⚠️ Erro na verificação, mas formulário carregado. Verifique os dados.', 'warning');
+        
     } finally {
         btnBuscarText.textContent = '🔍 Buscar e Carregar Dados';
         btnBuscarLoader.style.display = 'none';
@@ -429,16 +458,19 @@ document.getElementById('agendamentoForm').addEventListener('submit', async func
     submitBtn.disabled = true;
 
     try {
-        const conflitoTecnico = await verificarConflitoTecnico(tecnico, data, horario, siteNameAtual);
-        
-        if (conflitoTecnico && conflitoTecnico.conflito) {
-            showMessage(`❌ ${conflitoTecnico.mensagem}`, 'error');
-            highlightCamposConflitantes();
+        // Verificar conflito de técnico apenas se a URL estiver configurada
+        if (config.powerAutomateUrlVerificarTecnico) {
+            const conflitoTecnico = await verificarConflitoTecnico(tecnico, data, horario, siteNameAtual);
             
-            btnText.textContent = 'Atualizar Linha na Planilha';
-            btnLoader.style.display = 'none';
-            submitBtn.disabled = false;
-            return;
+            if (conflitoTecnico && conflitoTecnico.conflito) {
+                showMessage(`❌ ${conflitoTecnico.mensagem}`, 'error');
+                highlightCamposConflitantes();
+                
+                btnText.textContent = 'Atualizar Linha na Planilha';
+                btnLoader.style.display = 'none';
+                submitBtn.disabled = false;
+                return;
+            }
         }
 
         btnText.textContent = 'Atualizando...';
@@ -547,21 +579,14 @@ window.onload = function () {
         e.target.value = aplicarMascaraCPF(e.target.value);
     });
 
-    document.getElementById('powerAutomateUrl').addEventListener('blur', function() {
-        if (this.value.trim()) {
+    // Salvar configuração automaticamente quando sair do campo
+    const salvarConfig = () => {
+        if (document.getElementById('powerAutomateUrl').value.trim()) {
             salvarConfiguracao();
         }
-    });
-    
-    document.getElementById('powerAutomateUrlVerificar').addEventListener('blur', function() {
-        if (this.value.trim()) {
-            salvarConfiguracao();
-        }
-    });
+    };
 
-    document.getElementById('powerAutomateUrlVerificarTecnico').addEventListener('blur', function() {
-        if (this.value.trim()) {
-            salvarConfiguracao();
-        }
-    });
+    document.getElementById('powerAutomateUrl').addEventListener('blur', salvarConfig);
+    document.getElementById('powerAutomateUrlVerificar').addEventListener('blur', salvarConfig);
+    document.getElementById('powerAutomateUrlVerificarTecnico').addEventListener('blur', salvarConfig);
 };
