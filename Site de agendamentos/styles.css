@@ -315,3 +315,85 @@ textarea:focus {
     content: " (Obrigatório)";
     color: #d32f2f;
 }
+
+/* Botão de administração */
+.btn-admin {
+    background: #6c757d;
+    color: white;
+    padding: 10px 15px;
+    border-radius: 5px;
+    text-decoration: none;
+    font-size: 14px;
+    transition: background 0.3s;
+}
+
+.btn-admin:hover {
+    background: #5a6268;
+}
+
+/* Header com flexbox */
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+}
+
+.header-right {
+    margin-left: auto;
+}
+
+/* Informações opcionais */
+.optional-info {
+    font-size: 12px;
+    color: #6c757d;
+    margin-top: 5px;
+    font-style: italic;
+}
+
+/* Seção de status */
+.status-section {
+    border-left: 4px solid #007bff;
+}
+/* Botões de administração e sessão */
+.btn-admin {
+    background: #6c757d;
+    color: white;
+    padding: 10px 15px;
+    border-radius: 5px;
+    text-decoration: none;
+    font-size: 14px;
+    transition: background 0.3s;
+}
+
+.btn-admin:hover {
+    background: #5a6268;
+}
+
+/* Status sections */
+.status-section {
+    border-left: 4px solid #007bff;
+    margin-top: 15px;
+}
+
+.status-section h4 {
+    margin-top: 0;
+    color: #333;
+}
+
+/* Loader para botões de login */
+.loader {
+    display: inline-block;
+    width: 16px;
+    height: 16px;
+    border: 2px solid #f3f3f3;
+    border-top: 2px solid #3498db;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin-left: 8px;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
