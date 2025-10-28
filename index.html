@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Agendamento - Sistema Multi-Planilhas</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+    <div class="header">
+        <div class="header-left">
+            <h1>📊 Sistema de Atualização de Agendamentos</h1>
+            <p>Verifica e carrega dados existentes da planilha</p>
+        </div>
+        <div class="header-right">
+            <a href="login.html" class="btn-admin">⚙️ Administração</a>
+        </div>
+    </div>
+
+    <!-- Busca por Site Name/Chave -->
+    <div class="search-section">
+        <h3>🔍 Buscar por Site Name / Chave</h3>
+
+        <!-- Seleção de Projeto -->
+        <div class="form-row">
+            <div class="form-group" style="flex: 1;">
+                <label for="projetoBusca">Projeto *</label>
+                <select id="projetoBusca" required onchange="toggleBuscaCampos()">
+                    <option value="">Selecione</option>
+                    <option value="Atacadao">Atacadão</option>
+                    <option value="Bradesco">Bradesco</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- Campo para ATACADÃO -->
+        <div class="form-row" id="campoAtacadao" style="display: none;">
+            <div class="form-group" style="flex: 2;">
+                <label for="buscarSiteName">Site Name para Buscar *</label>
+                <input type="text" id="buscarSiteName" placeholder="Digite o Site Name exato para buscar e atualizar">
+            </div>
+        </div>
+
+        <!-- Campo para BRADESCO -->
+        <div class="form-row" id="campoBradesco" style="display: none;">
+            <div class="form-group" style="flex: 2;">
+                <label for="buscarChave">Chave Bradesco *</label>
+                <input type="text" id="buscarChave" placeholder="Digite a Chave do Bradesco">
+            </div>
+        </div>
+
+        <button class="btn-search" onclick="buscarDados()" id="btnBuscar">
+            <span id="btnBuscarText">🔍 Buscar e Carregar Dados</span>
+            <div id="btnBuscarLoader" class="loader" style="display: none;"></div>
+        </button>
+    </div>
+
+    <!-- Formulário de Atualização -->
+    <div class="form-container">
+        <form id="agendamentoForm">
+            <div class="form-section">
+                <h3>📋 Informações do Agendamento</h3>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label id="chaveLabel">Site Name (Chave):</label>
+                        <div id="siteNameDisplay" style="padding: 10px; background: #f9f9f9; border-radius: 5px;">
+                            <span>Busque um Site Name/Chave primeiro</span>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="projeto">Projeto *</label>
+                        <select id="projeto" name="projeto" required disabled onchange="toggleCamposFormulario()">
+                            <option value="">Selecione o projeto</option>
+                            <option value="Atacadao">Atacadão</option>
+                            <option value="Bradesco">Bradesco</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Campo Chave (só aparece para Bradesco) -->
+            <div class="form-row" id="campoChaveForm" style="display: none;">
+                <div class="form-group">
+                    <label for="chave">Chave Bradesco *</label>
+                    <input type="text" id="chave" name="chave" placeholder="Chave do Bradesco">
+                </div>
+            </div>
+
+            <!-- Campos comuns para ambos os projetos -->
+            <div class="form-section">
+                <h3>👤 Dados do Agendamento</h3>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="tecnico">Nome do Técnico *</label>
+                        <input type="text" id="tecnico" name="tecnico" placeholder="Nome completo do técnico">
+                    </div>
+                    <div class="form-group">
+                        <label for="cpf">CPF do Técnico *</label>
+                        <input type="text" id="cpf" name="cpf" placeholder="000.000.000-00">
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="data">Data do Agendamento *</label>
+                        <input type="date" id="data" name="data">
+                    </div>
+                    <div class="form-group">
+                        <label for="horario">Horário *</label>
+                        <input type="time" id="horario" name="horario">
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="status">Status</label>
+                        <select id="status" name="status">
+                            <option value="Agendado">Agendado</option>
+                            <option value="Em Andamento">Em Andamento</option>
+                            <option value="Concluído">Concluído</option>
+                            <option value="Cancelado">Cancelado</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-actions">
+                <button type="button" class="btn-secondary" onclick="limparFormulario()">Limpar</button>
+                <button type="button" class="btn-debug" onclick="debugRequisicao()">🐛 Debug</button>
+                <button type="submit" class="btn-primary" id="submitBtn" disabled>
+                    <span id="btnText">Atualizar Linha na Planilha</span>
+                    <div id="btnLoader" class="loader"></div>
+                </button>
+            </div>
+
+            <div class="message" id="message"></div>
+        </form>
+    </div>
+
+    <!-- Painel de Debug -->
+    <div class="debug-section"
+        style="display: none; margin-top: 20px; background: #f5f5f5; padding: 15px; border-radius: 8px;">
+        <h3>🐛 Painel de Debug</h3>
+        <div class="form-row">
+            <div class="form-group">
+                <label>Última Requisição:</label>
+                <pre id="debugOutput"
+                    style="background: #2d2d2d; color: #f8f8f2; padding: 15px; border-radius: 5px; height: 200px; overflow: auto; font-size: 12px; margin-top: 10px;"></pre>
+            </div>
+        </div>
+        <div class="form-actions">
+            <button class="btn-secondary" onclick="document.getElementById('debugOutput').textContent = ''">Limpar
+                Debug</button>
+            <button class="btn-secondary"
+                onclick="document.querySelector('.debug-section').style.display = 'none'">Fechar</button>
+        </div>
+    </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+
+</html>
