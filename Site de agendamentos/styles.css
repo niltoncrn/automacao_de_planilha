@@ -9,12 +9,33 @@ body {
     background-color: #f5f7fa;
     color: #333;
     line-height: 1.6;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    min-height: 100vh;
+    padding: 20px;
 }
 
 .dashboard-container {
     max-width: 1200px;
+    width: 100%;
     margin: 0 auto;
     padding: 20px;
+}
+.header h1 {
+    font-size: 26px;
+    font-weight: 600;
+    color: #b4cfe9;
+    text-align: left;
+    padding-bottom: 8px;
+    border-bottom: 3px solid #2a5298;
+    margin-bottom: 10px;
+}
+
+.header p {
+    font-size: 14px;
+    color: #b4cfe9;
+    font-weight: 400;
 }
 
 .header {
@@ -22,7 +43,7 @@ body {
     justify-content: space-between;
     align-items: center;
     background: linear-gradient(135deg, #1e3c72, #2a5298);
-    color: white;
+    color: rgb(68, 67, 67);
     padding: 20px;
     border-radius: 10px;
     margin-bottom: 20px;
@@ -34,13 +55,17 @@ body {
     border-radius: 8px;
     padding: 20px;
     margin-bottom: 20px;
+    
+    
 }
 
 .search-section {
+    
     background-color: #e3f2fd;
     border-radius: 8px;
     padding: 15px;
     margin-bottom: 20px;
+    color: rgb(58, 58, 58);
 }
 
 .form-container {
@@ -66,7 +91,7 @@ body {
 label {
     margin-bottom: 8px;
     font-weight: 500;
-    color: #555;
+    color: #574848;
 }
 
 input,
@@ -89,15 +114,14 @@ textarea:focus {
 
 .form-actions {
     display: flex;
-    justify-content: flex-end;
+    justify-content: center !important;
     gap: 15px;
     margin-top: 20px;
 }
 
 .btn-primary,
 .btn-secondary,
-.btn-search,
-.btn-debug {
+.btn-search {
     padding: 12px 25px;
     border: none;
     border-radius: 5px;
@@ -146,14 +170,7 @@ textarea:focus {
     cursor: not-allowed;
 }
 
-.btn-debug {
-    background-color: #ff9800;
-    color: white;
-}
 
-.btn-debug:hover {
-    background-color: #f57c00;
-}
 
 .message {
     margin-top: 15px;
@@ -250,37 +267,14 @@ textarea:focus {
         gap: 10px;
     }
     
-    .form-actions {
-        flex-direction: column;
-    }
-    
     .btn-primary,
     .btn-secondary,
-    .btn-search,
-    .btn-debug {
+    .btn-search
+     {
         width: 100%;
     }
 }
 
-/* Estilos para o painel de debug */
-.debug-section {
-    background-color: #f8f9fa;
-    border: 1px solid #dee2e6;
-    border-radius: 8px;
-    padding: 20px;
-    margin-top: 20px;
-}
-
-.debug-section h3 {
-    color: #495057;
-    margin-bottom: 15px;
-}
-
-#debugOutput {
-    font-family: 'Courier New', monospace;
-    white-space: pre-wrap;
-    word-wrap: break-word;
-}
 
 /* Estilos para dados existentes */
 .existing-data {
@@ -296,104 +290,3 @@ textarea:focus {
     margin-bottom: 5px;
 }
 
-/* Estilos para informações opcionais */
-.optional-info {
-    font-size: 12px;
-    color: #666;
-    font-style: italic;
-    margin-top: 4px;
-}
-
-.config-section .form-group label::after {
-    content: " (Opcional)";
-    font-size: 12px;
-    color: #666;
-    font-weight: normal;
-}
-
-.config-section .form-group:first-child label::after {
-    content: " (Obrigatório)";
-    color: #d32f2f;
-}
-
-/* Botão de administração */
-.btn-admin {
-    background: #6c757d;
-    color: white;
-    padding: 10px 15px;
-    border-radius: 5px;
-    text-decoration: none;
-    font-size: 14px;
-    transition: background 0.3s;
-}
-
-.btn-admin:hover {
-    background: #5a6268;
-}
-
-/* Header com flexbox */
-.header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 30px;
-}
-
-.header-right {
-    margin-left: auto;
-}
-
-/* Informações opcionais */
-.optional-info {
-    font-size: 12px;
-    color: #6c757d;
-    margin-top: 5px;
-    font-style: italic;
-}
-
-/* Seção de status */
-.status-section {
-    border-left: 4px solid #007bff;
-}
-/* Botões de administração e sessão */
-.btn-admin {
-    background: #6c757d;
-    color: white;
-    padding: 10px 15px;
-    border-radius: 5px;
-    text-decoration: none;
-    font-size: 14px;
-    transition: background 0.3s;
-}
-
-.btn-admin:hover {
-    background: #5a6268;
-}
-
-/* Status sections */
-.status-section {
-    border-left: 4px solid #007bff;
-    margin-top: 15px;
-}
-
-.status-section h4 {
-    margin-top: 0;
-    color: #333;
-}
-
-/* Loader para botões de login */
-.loader {
-    display: inline-block;
-    width: 16px;
-    height: 16px;
-    border: 2px solid #f3f3f3;
-    border-top: 2px solid #3498db;
-    border-radius: 50%;
-    animation: spin 1s linear infinite;
-    margin-left: 8px;
-}
-
-@keyframes spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
-}
